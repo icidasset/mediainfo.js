@@ -12,7 +12,6 @@ async function task() {
     [
       './configure',
       '--host=le32-unknown-nacl',
-      '--disable-unicode',
       '--enable-static',
       '--disable-shared',
       `CFLAGS=${CFLAGS}`,
