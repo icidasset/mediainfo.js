@@ -1,0 +1,76 @@
+name: Build & create release
+
+on:
+  workflow_dispatch:
+    inputs:
+
+jobs:
+  # Pt. 1
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Dependencies
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+
+      - uses: pnpm/action-setup@v3
+      - uses: mymindstorm/setup-emsdk@v14
+
+      # Build
+      - run: pnpm install
+      - run: pnpm run build
+
+      # Upload artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # Pt. 2
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    outputs:
+      RELEASE_UPLOAD_ID: ${{ steps.create_release.outputs.id }}
+      TAG_NAME: ${{ steps.package-version.outputs.current-version }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: mkdir compressed
+
+      # Download artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # Get version number
+      - id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      # Create tar.gz
+      - uses: master-atul/tar-action@v1.1.0
+        with:
+          command: c
+          cwd: .
+          files: ./dist
+          outPath: compressed/mediainfo-v${{ steps.package-version.outputs.current-version }}.tar.gz
+
+      # Create release
+      - uses: softprops/action-gh-release@v1
+        id: create_release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+          tag_name: '${{ steps.package-version.outputs.current-version }}'
+          name: 'v${{ steps.package-version.outputs.current-version }}'
+          body: 'See the assets to download this version and install.'
+          draft: true
+
+          files: |
+            compressed/mediainfo-v${{ steps.package-version.outputs.current-version }}.tar.gz
