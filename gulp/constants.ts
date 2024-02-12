@@ -10,8 +10,8 @@ const VENDOR_DIR = join(BUILD_DIR, 'vendor')
 const LIBMEDIAINFO_VERSION = '24.01'
 const LIBZEN_VERSION = '0.4.41'
 
-const CFLAGS = '-Oz'
-const CXXFLAGS = '-Oz -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 -fno-rtti -fno-exceptions'
+const CFLAGS = '-Oz -DUNICODE'
+const CXXFLAGS = '-Oz -DUNICODE -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 -fno-rtti -fno-exceptions'
 
 // switch off feature to save some bytes
 const MediaInfoLib_CXXFLAGS = `-I ../../../Source -I ../../../../ZenLib/Source -s USE_ZLIB=1 \
